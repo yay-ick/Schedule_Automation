@@ -24,6 +24,27 @@ def read_airports():
 
     return airports
 
+def read_station_constraints():
+    with open(os.path.join(DATA_DIR,'station_constraints.csv'), mode='r', encoding='utf-8') as file:
+        csv_reader = csv.reader(file)
+
+        constraints = {}
+        cols = {}
+        for i,row in enumerate(csv_reader):
+            if i>0:
+                airport = row[0]
+                constraints[airport] = {}
+            for j,col in enumerate(row):
+                if i==0: #header
+                    cols[j] = col
+                else:
+                    if 'Latest' in cols[j] or 'Earliest' in cols[j]:
+                        constraints[airport][cols[j]] = dateutil.parser.parse(col).time()
+                    elif col!=airport:
+                        constraints[airport][cols[j]] = float(col)
+
+    return constraints
+
 
 def calculate_day_timedelta(dow):
     td = dow - 3
