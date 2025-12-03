@@ -119,7 +119,14 @@ def combine_capacity_plan_and_block_hours(capacity_plan,block_hours):
             dep_week = r[0]
             market = r[2]
             capacity_plan[dep_date][i].append(block_hours[dep_week,market])
-    capacity_plan['header'] = ['departure_week','base','market','block_hours']
+            capacity_plan[dep_date][i].append(False)
+    capacity_plan['cols'] = {}
+    capacity_plan['cols']['departure_week'] = 0
+    capacity_plan['cols']['base'] = 1
+    capacity_plan['cols']['market'] = 2
+    capacity_plan['cols']['pattern'] = 3
+    capacity_plan['cols']['block_hours'] = 4
+    capacity_plan['cols']['is_scheduled'] = 5
     return capacity_plan
 
 def get_capacity_plan():
