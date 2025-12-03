@@ -55,14 +55,15 @@ def is_compliant(orig,dest,epdt1,epat1,epdt2,epat2,current_line_index,lines,cons
 
     
 
-
-
-
-def find_earliest_departure_time(dep_date,orig,dest,base,block_hours,lines,constraints):
-
+def search_algo(dep_date,orig,dest,base,block_hours,lines,constraints,add_new_line):
     search_cut_off = datetime.timedelta(days=1) + datetime.datetime(dep_date.year,dep_date.month,dep_date.day,constraints[orig]['Earliest Arrival'].hour,constraints[orig]['Earliest Arrival'].minute,0)
     dt = 1.0 / 60 #1 minute increment
-    for i,line in enumerate(lines):
+
+    iter_lines = lines
+    if add_new_line:
+        iter_lines = [[]]
+
+    for i,line in enumerate(iter_lines):
 
         turn1 = datetime.timedelta(hours=constraints[orig]['Turn Time'])
         turn2 = datetime.timedelta(hours=constraints[dest]['Turn Time'])
@@ -79,19 +80,39 @@ def find_earliest_departure_time(dep_date,orig,dest,base,block_hours,lines,const
 
         # step minute by minute
         while epat2 < search_cut_off:
-            epdt1 = datetime.datetime(dep_date.year,dep_date.month,dep_date.day,constraints[orig]['Earliest Departure'].hour,constraints[orig]['Earliest Departure'].minute) 
+            epdt1 = datetime.timedelta(hours=t) + datetime.datetime(dep_date.year,dep_date.month,dep_date.day,constraints[orig]['Earliest Departure'].hour,constraints[orig]['Earliest Departure'].minute) 
             if len(line)>0:
-                epdt1 = line[-1]['Arr Time'] + turn1 + datetime.timedelta(hours=t/60)
+                epdt1 = line[-1]['Arr Time'] + turn1 + datetime.timedelta(hours=t)
             epat1 = epdt1 + block
             epdt2 = epat1 + turn2
             epat2 = epdt2 + block
 
+            if dest=='ATL' and dep_date==datetime.datetime(2025,1,3):
+                xxx = 1
+
             if is_compliant(orig,dest,epdt1,epat1,epdt2,epat2,i,lines,constraints):
-                return True, epdt1
+                line_index = i
+                if add_new_line:
+                    line_index = len(lines)
+                return True, epdt1, line_index
             
             t += dt
-        
-        return False, None
+
+    return False,None,None
+
+
+def find_earliest_departure_time(dep_date,orig,dest,base,block_hours,lines,constraints):
+
+    success,dep_time,line_index = search_algo(dep_date,orig,dest,base,block_hours,lines,constraints,False)
+    if success:
+        return False,dep_time,line_index
+    
+    success,dep_time,line_index = search_algo(dep_date,orig,dest,base,block_hours,lines,constraints,True)
+    if line_index is None:
+        xxxx = 0
+    return True,dep_time,line_index
+
+
         
         
 

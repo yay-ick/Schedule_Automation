@@ -6,34 +6,34 @@ import datetime
 
 
 
-def add_flight(orig,dest,dep_date,base,dep_datetime,block_hours,station_constraints,lines):
+def add_flight(line_index,orig,dest,dep_date,base,dep_datetime,block_hours,station_constraints,lines):
+
+    if line_index >= len(lines[dep_date][base]):
+        lines[dep_date][base].append([])
 
     flight = {}
     flight['Orig'] = orig
     flight['Dest'] = dest
     flight['Base'] = base
-    flight['Dep_Date'] = dep_date.date()
+    flight['Dep Date'] = dep_date.date()
     flight['Dep Time'] = dep_datetime
     flight['Arr Time'] = flight['Dep Time'] + datetime.timedelta(hours=block_hours)
     flight['Block Time'] = block_hours
     
-    lines[dep_date][base][-1].append(flight)
+    lines[dep_date][base][line_index].append(flight)
 
     flight = {}
     flight['Orig'] = dest
     flight['Dest'] = orig
     flight['Base'] = base
-    flight['Dep_Date'] = dep_date.date()
+    flight['Dep Date'] = dep_date.date()
     flight['Dep Time'] = dep_datetime + datetime.timedelta(hours=block_hours) + datetime.timedelta(hours=station_constraints[dest]['Turn Time'])
     flight['Arr Time'] = flight['Dep Time'] + datetime.timedelta(hours=block_hours)
     flight['Block Time'] = block_hours
     
-    lines[dep_date][base][-1].append(flight)
+    lines[dep_date][base][line_index].append(flight)
 
     return lines
-
-
-
 
 def build_schedule(capacity_plan,station_constraints):
     lines = {}
@@ -57,8 +57,7 @@ def build_schedule(capacity_plan,station_constraints):
                 lines[dep_date][base] = [[]]
 
             orig,dest = helper_tools.get_ond(market,base)
-            success, dep_datetime = constraint_solver.find_earliest_departure_time(dep_date,orig,dest,base,block_hours,lines[dep_date][base],station_constraints)
-            if success:
-                lines = add_flight(orig,dest,dep_date,base,dep_datetime,block_hours,station_constraints,lines)
+            new_line,dep_datetime,line_index = constraint_solver.find_earliest_departure_time(dep_date,orig,dest,base,block_hours,lines[dep_date][base],station_constraints)
+            lines = add_flight(line_index,orig,dest,dep_date,base,dep_datetime,block_hours,station_constraints,lines)
 
     return lines
