@@ -1,8 +1,14 @@
 
 import os
 import csv
+import pickle
+import datetime
 
 OUTPUT_DIR = os.path.join('..','outputs')
+
+def pickle_result(index, results):
+    date_str = str(datetime.datetime.now()).replace('/','-')
+    pickle.dump(results,open(os.path.join(OUTPUT_DIR,'schedule result - '+date_str+' - '+str(index)+'.pkl'),'wb'))
 
 def output_csv(schedule):
 
@@ -15,7 +21,7 @@ def output_csv(schedule):
     # cols['departure time'] = 5
     # cols['arrival time']   = 6
 
-    output = [['base','departure date','line number','origin','destination','departure','arrival','block']]
+    output = [['base','departure date','line number','origin','destination','flight_number','departure','arrival','block']]
     for dep_date in schedule.keys():
         for base in schedule[dep_date].keys():
             for i_line,line in enumerate(schedule[dep_date][base]):
@@ -25,6 +31,7 @@ def output_csv(schedule):
                           ,i_line
                           ,flight['Orig']
                           ,flight['Dest']
+                          ,flight['Flight Number']
                           ,flight['Dep Time']
                           ,flight['Arr Time']
                           ,flight['Block Time']

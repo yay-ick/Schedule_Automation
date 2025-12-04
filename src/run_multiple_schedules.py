@@ -11,6 +11,7 @@ import helper_tools
 
 
 
+
 num_runs = 10
 capacity_plan = schedule_inputs.get_capacity_plan()
 station_constraints = schedule_inputs.read_station_constraints()
@@ -35,6 +36,8 @@ for i in range(num_runs):
     results[i]['capacity_plan'] = capacity_plan
     results[i]['schedule'] = schedule
     results[i]['stats'] = schedule_stats
+
+    schedule_outputs.pickle_result(i,results)
 
 
 
