@@ -38,10 +38,10 @@ def add_flight(line_index,orig,dest,dep_date,base,dep_datetime,block_hours,stati
 def build_schedule(capacity_plan,station_constraints):
     lines = {}
     for dep_date in capacity_plan.keys():
-        if dep_date=='cols':
+        if dep_date=='cols' or dep_date=='order':
             continue
 
-        print(dep_date.date())
+        # print(dep_date.date())
 
         if not dep_date in lines:
             lines[dep_date] = {}

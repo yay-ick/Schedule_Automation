@@ -4,22 +4,26 @@ import helper_tools
 import datetime
 
 
-def is_compliant(orig,dest,epdt1,epat1,epdt2,epat2,current_line_index,lines,constraints):
+def is_compliant(orig,dest,dep_date,epdt1,epat1,epdt2,epat2,current_line_index,lines,constraints):
 
     #check easiest and fastest constraints first
-
+    ed = datetime.datetime(dep_date.year,dep_date.month,dep_date.day,constraints[orig]['Earliest Departure'].hour,constraints[orig]['Earliest Departure'].minute)
+    ea = datetime.datetime(dep_date.year,dep_date.month,dep_date.day,constraints[orig]['Earliest Arrival'].hour,constraints[orig]['Earliest Arrival'].minute)
+    ld = datetime.datetime(dep_date.year,dep_date.month,dep_date.day,constraints[orig]['Latest Departure'].hour,constraints[orig]['Latest Departure'].minute)
+    la = datetime.datetime(dep_date.year,dep_date.month,dep_date.day,constraints[orig]['Latest Arrival'].hour,constraints[orig]['Latest Arrival'].minute)
+    
     #check airport 1
-    if   (epdt1.time() < constraints[orig]['Earliest Departure']
-       or epat2.time() < constraints[orig]['Earliest Arrival']
-       or epdt1.time() > constraints[orig]['Latest Departure']
-       or epat2.time() > constraints[orig]['Latest Arrival']):
+    if   (epdt1 < ed
+       or epat2 < ea
+       or epdt1 > ld
+       or epat2 > la):
        return False
 
     #check airport 2
-    if   (epdt2.time() < constraints[dest]['Earliest Departure']
-       or epat1.time() < constraints[dest]['Earliest Arrival']
-       or epdt2.time() > constraints[dest]['Latest Departure']
-       or epat1.time() > constraints[dest]['Latest Arrival']):
+    if   (epdt2 < ed
+       or epat1 < ea
+       or epdt2 > ld
+       or epat1 > la):
        return False
        
     #turn times should be progmatically set and no violations should be allowed
@@ -90,7 +94,7 @@ def search_algo(dep_date,orig,dest,base,block_hours,lines,constraints,add_new_li
             if dest=='ATL' and dep_date==datetime.datetime(2025,1,3):
                 xxx = 1
 
-            if is_compliant(orig,dest,epdt1,epat1,epdt2,epat2,i,lines,constraints):
+            if is_compliant(orig,dest,dep_date,epdt1,epat1,epdt2,epat2,i,lines,constraints):
                 line_index = i
                 if add_new_line:
                     line_index = len(lines)
